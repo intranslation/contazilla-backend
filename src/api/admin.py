@@ -1,5 +1,6 @@
 from django.contrib import admin
 
-from .models.client import ClientModel
+from api.models import Client, CustomUser
 
-admin.site.register(ClientModel)
+admin.site.register(Client)
+admin.site.register(CustomUser)

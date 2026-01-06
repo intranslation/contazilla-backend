@@ -1,9 +1,9 @@
 from rest_framework import serializers
 
-from api.models.client import ClientModel
+from api.models.client import Client
 
 
 class ClientSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ClientModel
+        model = Client
         fields = "__all__"
