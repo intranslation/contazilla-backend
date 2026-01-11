@@ -6,7 +6,6 @@ from api.models import Client
 
 
 class ClientsView(ModelViewSet):
-    # class ClientsView(GenericViewSet, ListModelMixin, CreateModelMixin):
-    serializer_class = ClientSerializer
     queryset = Client.objects.all()
+    serializer_class = ClientSerializer
     permission_classes = [IsAuthenticated]
