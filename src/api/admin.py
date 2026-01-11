@@ -1,6 +1,0 @@
-from django.contrib import admin
-
-from api.models import Client, CustomUser
-
-admin.site.register(Client)
-admin.site.register(CustomUser)
