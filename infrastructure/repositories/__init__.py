@@ -1,1 +1,1 @@
-from .authentication import AuthenticationRepository
+from .user import UserRepository

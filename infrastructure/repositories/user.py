@@ -3,7 +3,7 @@ from domain.entities.user import User
 from infrastructure.models.user import User as UserModel
 
 
-class AuthenticationRepository:
+class UserRepository:
     def __init__(self, db: Session) -> None:
         self.db: Session = db
 
@@ -21,7 +21,7 @@ class AuthenticationRepository:
         user_exists = self.db.query(UserModel).filter(UserModel.email == email).first()
         return user_exists is not None
 
-    def get_user(self, email: str) -> UserModel | None:
+    def get_user_by_email(self, email: str) -> UserModel | None:
         user = self.db.query(UserModel).filter(UserModel.email == email).first()
 
         if user is None:

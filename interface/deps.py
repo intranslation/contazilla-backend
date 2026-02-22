@@ -1,11 +1,11 @@
-from domain.entities.user import User
-from shared.config import oauth2_scheme
 from fastapi import Depends
-from sqlalchemy.orm import Session
 from typing import Annotated, Any
+from sqlalchemy.orm import Session
+
+from infrastructure.repositories import UserRepository
+from infrastructure.security import TokenHandler, PasswordHashing
+
 from shared.database import SessionLocal
-from application.services import HashingUtilitiesService
-from infrastructure.repositories import AuthenticationRepository
 
 
 def get_db():
@@ -16,17 +16,13 @@ def get_db():
         db.close()
 
 
-def get_hash_utilities() -> HashingUtilitiesService:
-    return HashingUtilitiesService()
+def get_user_repo(db: Annotated[Any, Depends(get_db)]) -> UserRepository:
+    return UserRepository(db=db)
 
 
-def get_current_user(
-    hash_utilities: Annotated[HashingUtilitiesService, Depends(get_hash_utilities)],
-    token: Annotated[str, Depends(oauth2_scheme)],
-    db: Annotated[Session, Depends(get_db)],
-) -> User:
-    return hash_utilities.get_current_user(token, db)
+def get_token_handler() -> TokenHandler:
+    return TokenHandler()
 
 
-def get_auth_repo(db: Annotated[Any, Depends(get_db)]) -> AuthenticationRepository:
-    return AuthenticationRepository(db=db)
+def get_password_hashing() -> PasswordHashing:
+    return PasswordHashing()
