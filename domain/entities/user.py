@@ -1,8 +1,9 @@
 class User:
-    def __init__(self, email, name, phone, password):
+    def __init__(self, id, email, name, phone, password):
         if "@" not in email:
             raise ValueError("E-mail is missing @")
 
+        self.id = id
         self.email = email
         self.name = name
         self.phone = phone

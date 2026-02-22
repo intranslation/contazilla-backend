@@ -23,6 +23,7 @@ class User(Base):
 
     def to_domain(self):
         return UserDomain(
+            id=self.id,
             email=self.email,
             name=self.name,
             phone=self.phone,

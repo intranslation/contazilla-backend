@@ -1,9 +1,12 @@
 from sqlalchemy.orm import Session
+
 from domain.entities.user import User
+from application.ports import UserRepository as UserRepositoryContract
+
 from infrastructure.models.user import User as UserModel
 
 
-class UserRepository:
+class UserRepository(UserRepositoryContract):
     def __init__(self, db: Session) -> None:
         self.db: Session = db
 
@@ -21,7 +24,7 @@ class UserRepository:
         user_exists = self.db.query(UserModel).filter(UserModel.email == email).first()
         return user_exists is not None
 
-    def get_user_by_email(self, email: str) -> UserModel | None:
+    def get_user_by_email(self, email: str) -> User | None:
         user = self.db.query(UserModel).filter(UserModel.email == email).first()
 
         if user is None:

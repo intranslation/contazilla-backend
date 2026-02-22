@@ -1,16 +1,15 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 
-from application.ports.password_hashing import PasswordHashing
-from application.ports.token_handler import TokenHandler
-from application.use_cases.authentication.retrieve_user import RetrieveUser
-from interface.deps import get_user_repo, get_password_hashing, get_token_handler
+from interface.deps import (
+    get_retrieve_user_use_case,
+    sign_in_use_case,
+    register_use_case,
+)
 from interface.schemas import Token, UserCreate, UserResponse
-
-from application.ports import UserRepository
-from application.use_cases import RegisterUser, SignIn
+from application.use_cases import RegisterUser, SignIn, RetrieveUser
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -20,12 +19,9 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 )
 def register(
     user_data: UserCreate,
-    user_repo: Annotated[UserRepository, Depends(get_user_repo)],
-    password_hashing: Annotated[PasswordHashing, Depends(get_password_hashing)],
+    use_case: Annotated[RegisterUser, Depends(register_use_case)],
 ):
-    return RegisterUser.execute(
-        user_repo=user_repo,
-        password_hashing=password_hashing,
+    return use_case.execute(
         email=user_data.email,
         name=user_data.name,
         phone=user_data.phone,
@@ -36,14 +32,9 @@ def register(
 @router.post("/login", response_model=Token)
 def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    token_handler: Annotated[TokenHandler, Depends(get_token_handler)],
-    password_hashing: Annotated[PasswordHashing, Depends(get_password_hashing)],
-    user_repo: Annotated[UserRepository, Depends(get_user_repo)],
+    use_case: Annotated[SignIn, Depends(sign_in_use_case)],
 ):
-    return SignIn.execute(
-        user_repo=user_repo,
-        password_hashing=password_hashing,
-        token_handler=token_handler,
+    return use_case.execute(
         email=form_data.username,
         password=form_data.password,
     )
@@ -51,11 +42,16 @@ def login(
 
 @router.get("/me", response_model=UserResponse)
 def get_me(
-    token_handler: Annotated[TokenHandler, Depends(get_token_handler)],
-    user_repository: Annotated[UserRepository, Depends(get_user_repo)],
+    request: Request,
+    use_case: Annotated[RetrieveUser, Depends(get_retrieve_user_use_case)],
 ):
-    return UserResponse.model_validate(
-        RetrieveUser.execute(
-            token_handler=token_handler, user_repository=user_repository
-        )
+    user = use_case.execute(
+        request=request,
     )
+    serialized = UserResponse(
+        id=user.id,
+        email=user.email,
+        name=user.name,
+        phone=user.phone,
+    )
+    return serialized

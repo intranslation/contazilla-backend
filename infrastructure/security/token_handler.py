@@ -1,13 +1,13 @@
+from fastapi import Request
 from typing import Any
 from jose import jwt
 from shared.config import settings, oauth2_scheme
 from datetime import datetime, timedelta, timezone
 
+from application.ports import TokenHandler as TokenHandlerContract
 
-class TokenHandler:
-    def get_oauth2_scheme(self):
-        return oauth2_scheme
 
+class TokenHandler(TokenHandlerContract):
     def create_access_token(
         self, data: dict, expires_delta: timedelta | None = None
     ) -> str:

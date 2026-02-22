@@ -1,18 +1,24 @@
 from domain.entities.user import User
 from jose.exceptions import JWTError
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Request
 
 from application.ports import UserRepository, TokenHandler
 
 
 class RetrieveUser:
-    @staticmethod
-    def execute(token_handler: TokenHandler, user_repository: UserRepository):
+    def __init__(
+        self, token: str, token_handler: TokenHandler, user_repository: UserRepository
+    ):
+        self.token = token
+        self.token_handler = token_handler
+        self.user_repository = user_repository
+
+    def execute(self, request: Request):
         email = ""
-        token: str = token_handler.get_oauth2_scheme()
+        token: str = self.token
 
         try:
-            payload: dict = token_handler.decode(token)
+            payload: dict = self.token_handler.decode(token)
             email: str | None = payload.get("sub")
 
             if email is None:
@@ -28,7 +34,7 @@ class RetrieveUser:
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        user: User | None = user_repository.get_user_by_email(email)
+        user = self.user_repository.get_user_by_email(email)
 
         if user is None:
             raise HTTPException(
