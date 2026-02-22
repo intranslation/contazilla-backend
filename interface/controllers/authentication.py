@@ -3,12 +3,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from application.ports.repositories.authentication import AuthenticationRepository
 from application.services.hashing_utilities import HashingUtilitiesService
-from domain.entities.user import User
 from interface.deps import get_auth_repo, get_hash_utilities, get_current_user
 from interface.schemas import Token, UserCreate, UserResponse
 
+from application.ports import AuthenticationRepository
 from application.use_cases import RegisterUser, SignIn
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -36,7 +35,7 @@ def register(
 def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     auth_repo: Annotated[AuthenticationRepository, Depends(get_auth_repo)],
-    hash_service: Annotated[HashingUtilitiesService, Depends(get_hash_utilities)],
+    hash_service=Depends(get_hash_utilities),
 ):
     return SignIn.execute(
         auth_repo=auth_repo,
@@ -48,6 +47,6 @@ def login(
 
 @router.get("/me", response_model=UserResponse)
 def get_me(
-    user: Annotated[User, Depends(get_current_user)],
+    user=Depends(get_current_user),
 ):
-    return user
+    return UserResponse.model_validate(user)

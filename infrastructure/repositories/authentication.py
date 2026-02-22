@@ -8,13 +8,23 @@ class AuthenticationRepository:
         self.db: Session = db
 
     def create_user(self, user: User) -> None:
-        self.db.add(user)
+        new_user = UserModel(
+            email=user.email,
+            name=user.name,
+            phone=user.phone,
+            hashed_password=user.password,
+        )
+        self.db.add(new_user)
         self.db.commit()
 
     def user_exists(self, email: str) -> bool:
         user_exists = self.db.query(UserModel).filter(UserModel.email == email).first()
         return user_exists is not None
 
-    def get_user(self, email: str) -> User | None:
+    def get_user(self, email: str) -> UserModel | None:
         user = self.db.query(UserModel).filter(UserModel.email == email).first()
-        return user
+
+        if user is None:
+            raise BaseException()
+
+        return user.to_domain()

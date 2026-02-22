@@ -2,7 +2,7 @@ from domain.entities.user import User
 from shared.config import oauth2_scheme
 from fastapi import Depends
 from sqlalchemy.orm import Session
-from typing import Annotated
+from typing import Annotated, Any
 from shared.database import SessionLocal
 from application.services import HashingUtilitiesService
 from infrastructure.repositories import AuthenticationRepository
@@ -28,6 +28,5 @@ def get_current_user(
     return hash_utilities.get_current_user(token, db)
 
 
-def get_auth_repo() -> AuthenticationRepository:
-    session: Session = get_db()
-    return AuthenticationRepository(db=session)
+def get_auth_repo(db: Annotated[Any, Depends(get_db)]) -> AuthenticationRepository:
+    return AuthenticationRepository(db=db)

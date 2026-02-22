@@ -6,7 +6,8 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
-from infrastructure.models.user import User
+from domain.entities import User
+from infrastructure.models.user import User as UserModel
 from shared.config import settings
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -36,7 +37,7 @@ class HashingUtilitiesService:
         )
         return encoded_jwt
 
-    def get_current_user(self, token: str, db: Session) -> User:
+    def get_current_user(self, token: str, db: Session) -> UserModel:
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
@@ -54,7 +55,7 @@ class HashingUtilitiesService:
         except JWTError:
             raise credentials_exception
 
-        user = db.query(User).filter(User.email == email).first()
+        user = db.query(UserModel).filter(UserModel.email == email).first()
         if user is None:
             raise credentials_exception
         return user

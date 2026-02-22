@@ -12,6 +12,8 @@ class UserCreate(BaseModel):
 class UserResponse(BaseModel):
     id: int
     email: str
+    phone: str
+    name: str
     created_at: datetime
 
     class Config:
