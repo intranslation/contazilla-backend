@@ -23,16 +23,15 @@ class SignIn:
         email: str,
         password: str,
     ):
-        user: User | None = self.user_repo.get_user_by_email(email=email)
+        try:
+            user: User | None = self.user_repo.get_user_by_email(email=email)
 
-        if not user or not self.password_hashing.verify_password(
-            password, user.password
-        ):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Incorrect email or password",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+            if not user or not self.password_hashing.verify_password(
+                password, user.password
+            ):
+                raise ValueError("Incorrect email or password")
+        except:
+            raise ValueError("Couldn't find an account with this email")
 
         access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
         access_token: str = self.token_handler.create_access_token(

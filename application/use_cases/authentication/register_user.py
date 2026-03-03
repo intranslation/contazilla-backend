@@ -20,14 +20,17 @@ class RegisterUser:
         user_exists: bool = self.user_repo.user_exists(email)
 
         if user_exists:
-            raise HTTPException(409, detail="User already exists with this e-mail")
+            raise ValueError("An user already exists with this email")
 
         hashed_password: str = self.password_hashing.get_password_hash(password)
-        new_user = User(email=email, name=name, phone=phone, password=hashed_password)
+        new_user = User(
+            id=None, email=email, name=name, phone=phone, password=hashed_password
+        )
 
         try:
             self.user_repo.create_user(new_user)
-        except:
-            raise HTTPException(409, detail="Error while creating a new account.")
+        except Exception as e:
+            print(str(e))
+            raise ValueError("Error while creating a new account.")
 
         return new_user

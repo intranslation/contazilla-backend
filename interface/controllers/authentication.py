@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status, Request
+from fastapi import APIRouter, Depends, status, Request, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 
 from interface.deps import (
@@ -21,12 +21,16 @@ def register(
     user_data: UserCreate,
     use_case: Annotated[RegisterUser, Depends(register_use_case)],
 ):
-    return use_case.execute(
-        email=user_data.email,
-        name=user_data.name,
-        phone=user_data.phone,
-        password=user_data.password,
-    )
+    try:
+        user = use_case.execute(
+            email=user_data.email,
+            name=user_data.name,
+            phone=user_data.phone,
+            password=user_data.password,
+        )
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    return user
 
 
 @router.post("/login", response_model=Token)
@@ -34,10 +38,16 @@ def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     use_case: Annotated[SignIn, Depends(sign_in_use_case)],
 ):
-    return use_case.execute(
-        email=form_data.username,
-        password=form_data.password,
-    )
+    try:
+        token = use_case.execute(
+            email=form_data.username,
+            password=form_data.password,
+        )
+        print("TOKEN")
+        print(token)
+    except ValueError as e:
+        raise HTTPException(404, str(e))
+    return Token(access_token=token["access_token"], token_type=token["token_type"])
 
 
 @router.get("/me", response_model=UserResponse)
