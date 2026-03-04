@@ -1,9 +1,11 @@
-from fastapi import FastAPI
+from interface.deps import get_retrieve_user_use_case
+from typing import Annotated, Any
+from fastapi import FastAPI, Depends
 from contextlib import asynccontextmanager
 
 
 from shared.database import engine, Base
-from .controllers import auth_router
+from .controllers import auth_router, user_router
 
 
 @asynccontextmanager
@@ -21,8 +23,9 @@ app = FastAPI(
 )
 
 app.include_router(auth_router, prefix="/api/v1")
+app.include_router(user_router, prefix="/api/v1")
 
 
 @app.get("/api/v1")
-def health():
+def health(_: Annotated[Any, Depends(get_retrieve_user_use_case)]):
     return "ok"

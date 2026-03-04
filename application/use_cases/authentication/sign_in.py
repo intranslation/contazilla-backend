@@ -1,6 +1,5 @@
 from domain.entities.user import User
 from datetime import timedelta
-from fastapi import HTTPException, status
 
 from application.ports import UserRepository, PasswordHashing, TokenHandler
 

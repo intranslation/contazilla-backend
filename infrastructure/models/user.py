@@ -1,6 +1,6 @@
 import uuid
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import Column, String, DateTime
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import Column, String, DateTime, Boolean
 from sqlalchemy.sql import func
 from sqlalchemy.dialects.postgresql import UUID
 
@@ -15,11 +15,22 @@ class User(Base):
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
-    email = Column(String, unique=True, index=True, nullable=False)
-    name = Column(String, unique=False, index=False, nullable=False)
-    phone = Column(String, unique=False, index=False, nullable=False)
-    hashed_password = Column(String, nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    email = mapped_column(String, unique=True, index=True, nullable=False)
+    name = mapped_column(String, unique=False, index=False, nullable=False)
+    phone = mapped_column(String, unique=False, index=False, nullable=False)
+    hashed_password = mapped_column(String, nullable=False)
+    created_at = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+    is_archived = mapped_column(Boolean, nullable=True, default=False)
+
+    assets: Mapped[list["Asset"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
 
     def to_domain(self):
         return UserDomain(

@@ -13,7 +13,9 @@ class RetrieveUser:
         self.token_handler = token_handler
         self.user_repository = user_repository
 
-    def execute(self, request: Request):
+    def execute(self):
+        print("Hi")
+
         email = ""
         token: str = self.token
 
@@ -42,5 +44,7 @@ class RetrieveUser:
                 detail="Could not validate credentials",
                 headers={"WWW-Authenticate": "Bearer"},
             )
+
+        print(user)
 
         return user

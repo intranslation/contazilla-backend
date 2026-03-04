@@ -1,37 +1,16 @@
-from shared.config import oauth2_scheme
-from fastapi import Depends
-from typing import Annotated, Any
-from sqlalchemy.orm import Session
+from fastapi import Depends, Request
+from typing import Annotated
 
-from application.use_cases import RetrieveUser, SignIn, RegisterUser
-from infrastructure.repositories import UserRepository
-from infrastructure.security import TokenHandler, PasswordHashing
-
-from shared.database import SessionLocal
-
-
-def get_db():
-    db: Session = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-def get_oauth2_scheme(token: Annotated[str, Depends(oauth2_scheme)]):
-    return token
-
-
-def get_user_repo(db: Annotated[Any, Depends(get_db)]) -> UserRepository:
-    return UserRepository(db=db)
-
-
-def get_token_handler() -> TokenHandler:
-    return TokenHandler()
-
-
-def get_password_hashing() -> PasswordHashing:
-    return PasswordHashing()
+from application.use_cases import RegisterUser, RetrieveUser, SignIn
+from infrastructure.repositories.user import UserRepository
+from infrastructure.security.password_hashing import PasswordHashing
+from infrastructure.security.token_handler import TokenHandler
+from interface.deps.tokens import (
+    get_oauth2_scheme,
+    get_password_hashing,
+    get_token_handler,
+)
+from interface.deps.user import get_user_repo
 
 
 def get_retrieve_user_use_case(
@@ -43,6 +22,12 @@ def get_retrieve_user_use_case(
         token=token, token_handler=token_handler, user_repository=user_repository
     )
     return use_case
+
+
+def get_current_user_use_case(
+    use_case: Annotated[RetrieveUser, Depends(get_retrieve_user_use_case)],
+):
+    return use_case.execute()
 
 
 def sign_in_use_case(
