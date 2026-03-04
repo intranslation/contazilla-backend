@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 
 
 from shared.database import engine, Base
-from .controllers import auth_router, user_router
+from .controllers import auth_router, user_router, asset_router, client_router, company_router
 
 
 @asynccontextmanager
@@ -24,6 +24,9 @@ app = FastAPI(
 
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(user_router, prefix="/api/v1")
+app.include_router(asset_router, prefix="/api/v1")
+app.include_router(client_router, prefix="/api/v1")
+app.include_router(company_router, prefix="/api/v1")
 
 
 @app.get("/api/v1")

@@ -1,11 +1,15 @@
 import uuid
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from shared.database import Base
 
 from sqlalchemy.dialects.postgresql import UUID
 
 from sqlalchemy.sql import func
-from sqlalchemy import Column, String, DateTime
+from sqlalchemy import Column, String, DateTime, ForeignKey
+
+from domain.entities.client import Client as ClientDomain
+
+User = None
 
 
 class Client(Base):
@@ -26,3 +30,15 @@ class Client(Base):
         onupdate=func.now(),
         nullable=False,
     )
+
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    user: Mapped["User"] = relationship(back_populates="clients")
+
+    def to_domain(self):
+        return ClientDomain(
+            id=self.id,
+            name=self.name,
+            cpf=self.cpf,
+            phone=self.phone,
+            user_id=self.user_id,
+        )

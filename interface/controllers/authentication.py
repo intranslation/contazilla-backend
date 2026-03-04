@@ -29,7 +29,7 @@ def register(
             password=user_data.password,
         )
         serialized = UserResponse(
-            id=str(user.id), email=user.email, name=user.name, phone=user.phone
+            id=user.id, email=user.email, name=user.name, phone=user.phone
         )
     except ValueError as e:
         raise HTTPException(400, str(e))
@@ -46,8 +46,6 @@ def login(
             email=form_data.username,
             password=form_data.password,
         )
-        print("TOKEN")
-        print(token)
     except ValueError as e:
         raise HTTPException(404, str(e))
     return Token(access_token=token["access_token"], token_type=token["token_type"])

@@ -19,14 +19,20 @@ class RetrieveUser:
         email = ""
         token: str = self.token
 
+        print("token", token)
+        print(self.token_handler.decode(token))
+
         try:
             payload: dict = self.token_handler.decode(token)
             email: str | None = payload.get("sub")
 
+            print("payload")
+            print(payload)
+
             if email is None:
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Could not validate credentials",
+                    detail="Credentials expired",
                     headers={"WWW-Authenticate": "Bearer"},
                 )
         except JWTError:

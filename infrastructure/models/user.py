@@ -8,6 +8,8 @@ from shared.database import Base
 
 from domain.entities import User as UserDomain
 
+Asset, Client, Company = [None, None, None]
+
 
 class User(Base):
     __tablename__ = "users"
@@ -29,6 +31,12 @@ class User(Base):
     is_archived = mapped_column(Boolean, nullable=True, default=False)
 
     assets: Mapped[list["Asset"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+    clients: Mapped[list["Client"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+    companies: Mapped[list["Company"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
 

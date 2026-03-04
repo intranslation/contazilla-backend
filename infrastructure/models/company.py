@@ -1,12 +1,16 @@
 from sqlalchemy.orm.properties import MappedColumn
 from typing import Any
 import uuid
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from shared.database import Base
 from sqlalchemy.dialects.postgresql import UUID
 
 from sqlalchemy.sql import func
-from sqlalchemy import String, DateTime
+from sqlalchemy import ForeignKey, String, DateTime
+
+from domain.entities.company import Company as CompanyDomain
+
+User = None
 
 
 class Company(Base):
@@ -29,3 +33,16 @@ class Company(Base):
     )
 
     client_id = mapped_column(UUID(as_uuid=True), nullable=True)
+
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    user: Mapped["User"] = relationship(back_populates="companies")
+
+    def to_domain(self):
+        return CompanyDomain(
+            id=self.id,
+            name=self.name,
+            address=self.address,
+            cnpj=self.cnpj,
+            client_id=self.client_id,
+            user_id=self.user_id,
+        )
