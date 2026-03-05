@@ -75,7 +75,7 @@ def list_all(
     ]
 
 
-@router.get("/retrieve", status_code=status.HTTP_201_CREATED)
+@router.post("/retrieve", status_code=status.HTTP_201_CREATED)
 def retrieve_asset(
     key: str,
     current_user: Annotated[User, Depends(get_current_user_use_case)],
