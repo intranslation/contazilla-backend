@@ -1,7 +1,13 @@
+from fastapi.responses import StreamingResponse
+import datetime
+
+from application.use_cases.asset.retrieve_asset import RetrieveAsset
+from application.use_cases.asset.upload_asset import UploadAsset
+from interface.deps.asset import upload_asset_use_case, retrieve_asset_use_case
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
 
 from application.use_cases.asset import (
     CreateAsset,
@@ -22,6 +28,7 @@ from interface.deps import (
     assign_client_to_asset_use_case,
 )
 from interface.schemas import AssetCreate, AssetUpdate, AssetResponse, AssignClient
+from interface.schemas.asset import AssetUpload
 
 router = APIRouter(prefix="/assets", tags=["assets"])
 
@@ -66,6 +73,21 @@ def list_all(
         )
         for a in assets
     ]
+
+
+@router.get("/retrieve", status_code=status.HTTP_201_CREATED)
+def retrieve_asset(
+    key: str,
+    current_user: Annotated[User, Depends(get_current_user_use_case)],
+    use_case: Annotated[RetrieveAsset, Depends(retrieve_asset_use_case)],
+):
+    response = use_case.execute(filename=key, user_id=current_user.id)
+
+    headers = {"Content-Disposition": f'attachment; filename="{response['filename']}"'}
+
+    return StreamingResponse(
+        content=response["file"](), media_type=response["media_type"], headers=headers
+    )
 
 
 @router.get("/{asset_id}", response_model=AssetResponse)
@@ -147,3 +169,19 @@ def assign_client(
         )
     except ValueError as e:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, str(e))
+
+
+@router.post("/upload", status_code=status.HTTP_201_CREATED)
+def upload_asset(
+    file: UploadFile,
+    current_user: Annotated[User, Depends(get_current_user_use_case)],
+    use_case: Annotated[UploadAsset, Depends(upload_asset_use_case)],
+    client_id: str | None = None,
+):
+    filename: str = file.filename if file.filename else f"{datetime.UTC}"
+    return use_case.execute(
+        file=file.file,
+        filename=filename,
+        client_id=UUID(client_id) if client_id is not None else None,
+        user_id=current_user.id,
+    )

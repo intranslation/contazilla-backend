@@ -14,20 +14,12 @@ class RetrieveUser:
         self.user_repository = user_repository
 
     def execute(self):
-        print("Hi")
-
         email = ""
         token: str = self.token
-
-        print("token", token)
-        print(self.token_handler.decode(token))
 
         try:
             payload: dict = self.token_handler.decode(token)
             email: str | None = payload.get("sub")
-
-            print("payload")
-            print(payload)
 
             if email is None:
                 raise HTTPException(
@@ -50,7 +42,5 @@ class RetrieveUser:
                 detail="Could not validate credentials",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-
-        print(user)
 
         return user

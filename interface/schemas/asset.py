@@ -22,3 +22,7 @@ class AssetResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class AssetUpload(BaseModel):
+    client_id: str | None

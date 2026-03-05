@@ -10,6 +10,13 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
 
+    # Boto3 Configuration
+    r2_endpoint: str = ""
+    r2_bucket: str = ""
+    aws_access_key_id: str = ""
+    aws_secret_access_key: str = ""
+    region_name: str = "auto"
+
     class Config:
         env_file = ".env"
 

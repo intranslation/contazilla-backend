@@ -33,3 +33,4 @@ from .company import (
     delete_company_use_case,
     assign_client_to_company_use_case,
 )
+from .externals import get_bucket_handler

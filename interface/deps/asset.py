@@ -1,4 +1,6 @@
-from interface.deps.database import get_db
+from application.use_cases.asset.retrieve_asset import RetrieveAsset
+from application.use_cases.asset.upload_asset import UploadAsset
+from infrastructure.services.bucket_handler import BucketHandler
 from fastapi import Depends
 from typing import Annotated, Any
 
@@ -12,6 +14,9 @@ from application.use_cases.asset import (
     DeleteAsset,
     AssignClientToAsset,
 )
+
+from interface.deps.database import get_db
+from interface.deps.externals import get_bucket_handler
 
 
 def get_asset_repo(db: Annotated[Any, Depends(get_db)]) -> AssetRepository:
@@ -56,4 +61,30 @@ def assign_client_to_asset_use_case(
     asset_repository: Annotated[AssetRepository, Depends(get_asset_repo)],
     client_repository: Annotated[ClientRepository, Depends(get_client_repo_for_asset)],
 ):
-    return AssignClientToAsset(asset_repo=asset_repository, client_repo=client_repository)
+    return AssignClientToAsset(
+        asset_repo=asset_repository, client_repo=client_repository
+    )
+
+
+def upload_asset_use_case(
+    asset_repository: Annotated[AssetRepository, Depends(get_asset_repo)],
+    client_repository: Annotated[ClientRepository, Depends(get_client_repo_for_asset)],
+    bucket_handler: Annotated[BucketHandler, Depends(get_bucket_handler)],
+):
+    return UploadAsset(
+        asset_repo=asset_repository,
+        client_repo=client_repository,
+        bucket_handler=bucket_handler,
+    )
+
+
+def retrieve_asset_use_case(
+    asset_repository: Annotated[AssetRepository, Depends(get_asset_repo)],
+    client_repository: Annotated[ClientRepository, Depends(get_client_repo_for_asset)],
+    bucket_handler: Annotated[BucketHandler, Depends(get_bucket_handler)],
+):
+    return RetrieveAsset(
+        asset_repo=asset_repository,
+        client_repo=client_repository,
+        bucket_handler=bucket_handler,
+    )

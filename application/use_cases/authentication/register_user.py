@@ -1,4 +1,3 @@
-from fastapi import HTTPException
 from application.ports import UserRepository, PasswordHashing
 from domain.entities.user import User
 
