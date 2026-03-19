@@ -48,6 +48,7 @@ shellingham==1.5.4
 six==1.17.0
 SQLAlchemy==2.0.45
 starlette==0.50.0
+ty==0.0.23
 typer==0.21.1
 typing-inspection==0.4.2
 typing_extensions==4.15.0
