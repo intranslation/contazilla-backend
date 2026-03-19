@@ -1,13 +1,16 @@
 import uuid
-from sqlalchemy.orm import mapped_column, relationship, Mapped
-from shared.database import Base
+from typing import TYPE_CHECKING
 
+from sqlalchemy import (UUID, Boolean, Column, DateTime, Float, ForeignKey,
+                        String)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
-from sqlalchemy import Column, String, DateTime, UUID, ForeignKey
 
 from domain.entities.asset import Asset as AssetDomain
+from shared.database import Base
 
-User = None
+if TYPE_CHECKING:
+    from infrastructure.models.user import User
 
 
 class Asset(Base):
@@ -17,7 +20,9 @@ class Asset(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     filename = Column(String, unique=False, nullable=True)
-    url = Column(String, unique=True, nullable=False)
+    size = Column(Float, nullable=True)
+    was_viewed = Column(Boolean, nullable=False, server_default="false")
+    was_downloaded = Column(Boolean, nullable=False, server_default="false")
     created_at = Column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
@@ -36,7 +41,11 @@ class Asset(Base):
         return AssetDomain(
             id=self.id,
             filename=self.filename,
-            url=self.url,
             client_id=self.client_id,
             user_id=self.user_id,
+            size=self.size,
+            was_viewed=self.was_viewed,
+            was_downloaded=self.was_downloaded,
+            created_at=self.created_at,
+            updated_at=self.updated_at,
         )

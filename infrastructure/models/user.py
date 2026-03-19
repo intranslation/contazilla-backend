@@ -1,14 +1,18 @@
 import uuid
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import Column, String, DateTime, Boolean
-from sqlalchemy.sql import func
-from sqlalchemy.dialects.postgresql import UUID
+from typing import TYPE_CHECKING, Optional
 
-from shared.database import Base
+from sqlalchemy import Boolean, Column, DateTime, String
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.sql import func
 
 from domain.entities import User as UserDomain
+from shared.database import Base
 
-Asset, Client, Company = [None, None, None]
+if TYPE_CHECKING:
+    from infrastructure.models.asset import Asset
+    from infrastructure.models.client import Client
+    from infrastructure.models.company import Company
 
 
 class User(Base):
@@ -28,6 +32,7 @@ class User(Base):
         onupdate=func.now(),
         nullable=False,
     )
+    role = mapped_column(String, nullable=False, default="admin")
     is_archived = mapped_column(Boolean, nullable=True, default=False)
 
     assets: Mapped[list["Asset"]] = relationship(
@@ -47,4 +52,6 @@ class User(Base):
             name=self.name,
             phone=self.phone,
             password=self.hashed_password,
+            role=self.role,
+            is_archived=self.is_archived,
         )

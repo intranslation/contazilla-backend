@@ -1,12 +1,13 @@
-from botocore.exceptions import ClientError
-from typing import BinaryIO, Any
+from typing import Any, BinaryIO
 from uuid import UUID
+
+import boto3
+from botocore.exceptions import ClientError
+
+from application.ports.bucket_handler import \
+    BucketHandler as BucketHandlerInterface
 from infrastructure.exceptions import R2UploadErrorException
 from shared.config import settings
-import boto3
-
-
-from application.ports.bucket_handler import BucketHandler as BucketHandlerInterface
 
 
 class BucketHandler(BucketHandlerInterface):
@@ -33,12 +34,14 @@ class BucketHandler(BucketHandlerInterface):
 
         return obj
 
-    def upload_file(self, file: BinaryIO, filename: str, user_id: UUID) -> str:
+    def upload_file(
+        self, file: BinaryIO, filename: str, user_id: UUID, client_id: UUID
+    ) -> str:
         try:
             url = self.client.upload_fileobj(
                 Fileobj=file,
                 Bucket=settings.r2_bucket,
-                Key=f"{str(user_id)}/{filename}",
+                Key=f"{str(user_id)}/{str(client_id)}/{filename}",
             )
         except:
             raise R2UploadErrorException()

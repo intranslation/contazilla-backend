@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+
 from shared.database import SessionLocal
 
 

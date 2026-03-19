@@ -1,10 +1,11 @@
-from fastapi import Request
-from typing import Any
-from jose import jwt
-from shared.config import settings, oauth2_scheme
 from datetime import datetime, timedelta, timezone
+from typing import Any
+
+from fastapi import Request
+from jose import jwt
 
 from application.ports import TokenHandler as TokenHandlerContract
+from shared.config import oauth2_scheme, settings
 
 
 class TokenHandler(TokenHandlerContract):

@@ -1,27 +1,30 @@
-from interface.deps.database import get_db
-from fastapi import Depends
 from typing import Annotated, Any
 
-from infrastructure.repositories.company import CompanyRepository
+from fastapi import Depends
+
+from application.use_cases.company import (AssignClientToCompany,
+                                           CreateCompany, DeleteCompany,
+                                           GetCompany, ListCompanies,
+                                           UpdateCompany)
+from infrastructure.repositories.address import AddressRepository
 from infrastructure.repositories.client import ClientRepository
-from application.use_cases.company import (
-    CreateCompany,
-    GetCompany,
-    ListCompanies,
-    UpdateCompany,
-    DeleteCompany,
-    AssignClientToCompany,
-)
+from infrastructure.repositories.company import CompanyRepository
+from interface.deps.database import get_db
 
 
 def get_company_repo(db: Annotated[Any, Depends(get_db)]) -> CompanyRepository:
     return CompanyRepository(db=db)
 
 
+def get_address_repo_for_company(db: Annotated[Any, Depends(get_db)]) -> AddressRepository:
+    return AddressRepository(db=db)
+
+
 def create_company_use_case(
     company_repository: Annotated[CompanyRepository, Depends(get_company_repo)],
+    address_repository: Annotated[AddressRepository, Depends(get_address_repo_for_company)],
 ):
-    return CreateCompany(company_repo=company_repository)
+    return CreateCompany(company_repo=company_repository, address_repo=address_repository)
 
 
 def get_company_use_case(
@@ -38,8 +41,9 @@ def list_companies_use_case(
 
 def update_company_use_case(
     company_repository: Annotated[CompanyRepository, Depends(get_company_repo)],
+    address_repository: Annotated[AddressRepository, Depends(get_address_repo_for_company)],
 ):
-    return UpdateCompany(company_repo=company_repository)
+    return UpdateCompany(company_repo=company_repository, address_repo=address_repository)
 
 
 def delete_company_use_case(

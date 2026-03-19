@@ -27,12 +27,17 @@ class RetrieveAsset:
 
     def execute(
         self,
-        filename: str,
+        client_id: UUID,
+        asset_id: UUID,
         user_id: UUID,
     ) -> RetrieveAssetResponse:
-        key = f"{user_id}/{filename}"
 
-        print(f"Retrieving file at {key}")
+        asset = self.asset_repo.get_by_id(asset_id=asset_id, user_id=user_id)
+
+        if asset is None:
+            raise ValueError("Asset with the id provided doesn't exists")
+
+        key = f"{str(user_id)}/{str(client_id)}/{asset.filename}"
 
         obj = self.bucket_handler.retrieve_file(key=key)
         content_type = (
@@ -48,6 +53,6 @@ class RetrieveAsset:
 
         return {
             "file": iterfile,
-            "filename": filename,
+            "filename": asset.filename,
             "media_type": content_type,
         }

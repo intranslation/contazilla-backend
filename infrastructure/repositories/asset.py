@@ -1,8 +1,9 @@
 from uuid import UUID
+
 from sqlalchemy.orm import Session
 
-from domain.entities.asset import Asset
 from application.ports import AssetRepository as AssetRepositoryContract
+from domain.entities.asset import Asset
 from infrastructure.models.asset import Asset as AssetModel
 
 
@@ -13,9 +14,11 @@ class AssetRepository(AssetRepositoryContract):
     def create(self, asset: Asset) -> Asset:
         new_asset = AssetModel(
             filename=asset.filename,
-            url=asset.url,
             client_id=asset.client_id,
             user_id=asset.user_id,
+            size=asset.size,
+            was_viewed=asset.was_viewed,
+            was_downloaded=asset.was_downloaded,
         )
         self.db.add(new_asset)
         self.db.commit()
@@ -32,13 +35,11 @@ class AssetRepository(AssetRepositoryContract):
             return None
         return asset.to_domain()
 
-    def list_by_user(self, user_id: UUID) -> list[Asset]:
-        assets = (
-            self.db.query(AssetModel)
-            .filter(AssetModel.user_id == user_id)
-            .all()
-        )
-        return [a.to_domain() for a in assets]
+    def list_by_user(self, user_id: UUID, client_id: UUID | None = None) -> list[Asset]:
+        query = self.db.query(AssetModel).filter(AssetModel.user_id == user_id)
+        if client_id is not None:
+            query = query.filter(AssetModel.client_id == client_id)
+        return [a.to_domain() for a in query.all()]
 
     def update(self, asset: Asset) -> Asset:
         db_asset = (
@@ -50,8 +51,9 @@ class AssetRepository(AssetRepositoryContract):
             raise ValueError("Asset not found")
 
         db_asset.filename = asset.filename
-        db_asset.url = asset.url
         db_asset.client_id = asset.client_id
+        db_asset.was_viewed = asset.was_viewed
+        db_asset.was_downloaded = asset.was_downloaded
         self.db.commit()
         self.db.refresh(db_asset)
         return db_asset.to_domain()

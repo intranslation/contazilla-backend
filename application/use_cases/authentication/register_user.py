@@ -1,5 +1,6 @@
-from application.ports import UserRepository, PasswordHashing
+from application.ports import PasswordHashing, UserRepository
 from domain.entities.user import User
+from domain.enums.role import UserRole
 
 
 class RegisterUser:
@@ -23,7 +24,12 @@ class RegisterUser:
 
         hashed_password: str = self.password_hashing.get_password_hash(password)
         new_user = User(
-            id=None, email=email, name=name, phone=phone, password=hashed_password
+            id=None,
+            email=email,
+            name=name,
+            phone=phone,
+            role=UserRole.ADMIN,
+            password=hashed_password,
         )
 
         try:

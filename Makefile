@@ -21,3 +21,9 @@ current:
 # Show migration history
 history:
 	alembic history -v
+
+organize-imports:
+	isort .
+
+check-types:
+	ty check

@@ -9,7 +9,14 @@ class UpdateClient:
         self.client_repo = client_repo
 
     def execute(
-        self, client_id: UUID, user_id: UUID, name: str | None, cpf: str, phone: str | None
+        self,
+        client_id: UUID,
+        user_id: UUID,
+        name: str | None,
+        cpf: str | None,
+        email: str | None,
+        phone: str | None,
+        is_premium: bool | None = None,
     ) -> Client:
         existing = self.client_repo.get_by_id(client_id, user_id)
         if existing is None:
@@ -19,8 +26,10 @@ class UpdateClient:
             id=client_id,
             name=name,
             cpf=cpf,
+            email=email,
             phone=phone,
             user_id=user_id,
+            is_premium=is_premium if is_premium is not None else existing.is_premium,
         )
         try:
             return self.client_repo.update(updated_client)

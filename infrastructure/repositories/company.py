@@ -1,8 +1,10 @@
 from uuid import UUID
+
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from domain.entities.company import Company
 from application.ports import CompanyRepository as CompanyRepositoryContract
+from domain.entities.company import Company
 from infrastructure.models.company import Company as CompanyModel
 
 
@@ -11,17 +13,29 @@ class CompanyRepository(CompanyRepositoryContract):
         self.db: Session = db
 
     def create(self, company: Company) -> Company:
-        new_company = CompanyModel(
-            name=company.name,
-            address=company.address,
-            cnpj=company.cnpj,
-            client_id=company.client_id,
-            user_id=company.user_id,
-        )
-        self.db.add(new_company)
-        self.db.commit()
-        self.db.refresh(new_company)
-        return new_company.to_domain()
+        try:
+            new_company = CompanyModel(
+                name=company.name,
+                cnpj=company.cnpj,
+                client_id=company.client_id,
+                user_id=company.user_id,
+            )
+            self.db.add(new_company)
+            self.db.commit()
+            self.db.refresh(new_company)
+            return new_company.to_domain()
+        except IntegrityError as e:
+            self.db.rollback()
+            print(f"[CompanyRepository.create] IntegrityError: {e}")
+            raise
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            print(f"[CompanyRepository.create] SQLAlchemyError: {e}")
+            raise
+        except Exception as e:
+            self.db.rollback()
+            print(f"[CompanyRepository.create] Unexpected error: {e}")
+            raise
 
     def get_by_id(self, company_id: UUID, user_id: UUID) -> Company | None:
         company = (
@@ -54,7 +68,6 @@ class CompanyRepository(CompanyRepositoryContract):
             raise ValueError("Company not found")
 
         db_company.name = company.name
-        db_company.address = company.address
         db_company.cnpj = company.cnpj
         db_company.client_id = company.client_id
         self.db.commit()

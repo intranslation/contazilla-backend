@@ -1,8 +1,8 @@
-from domain.entities.user import User
+from fastapi import HTTPException, Request, status
 from jose.exceptions import JWTError
-from fastapi import HTTPException, status, Request
 
-from application.ports import UserRepository, TokenHandler
+from application.ports import TokenHandler, UserRepository
+from domain.entities.user import User
 
 
 class RetrieveUser:

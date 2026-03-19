@@ -1,8 +1,9 @@
 from uuid import UUID
+
 from sqlalchemy.orm import Session
 
-from domain.entities.client import Client
 from application.ports import ClientRepository as ClientRepositoryContract
+from domain.entities.client import Client
 from infrastructure.models.client import Client as ClientModel
 
 
@@ -15,6 +16,7 @@ class ClientRepository(ClientRepositoryContract):
             name=client.name,
             cpf=client.cpf,
             phone=client.phone,
+            is_premium=client.is_premium,
             user_id=client.user_id,
         )
         self.db.add(new_client)
@@ -34,9 +36,7 @@ class ClientRepository(ClientRepositoryContract):
 
     def list_by_user(self, user_id: UUID) -> list[Client]:
         clients = (
-            self.db.query(ClientModel)
-            .filter(ClientModel.user_id == user_id)
-            .all()
+            self.db.query(ClientModel).filter(ClientModel.user_id == user_id).all()
         )
         return [c.to_domain() for c in clients]
 
@@ -51,9 +51,12 @@ class ClientRepository(ClientRepositoryContract):
 
         db_client.name = client.name
         db_client.cpf = client.cpf
+        db_client.email = client.email
         db_client.phone = client.phone
+        db_client.is_premium = client.is_premium
+
         self.db.commit()
-        self.db.refresh(db_client)
+
         return db_client.to_domain()
 
     def delete(self, client_id: UUID, user_id: UUID) -> None:

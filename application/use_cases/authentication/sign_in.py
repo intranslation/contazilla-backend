@@ -1,8 +1,9 @@
-from domain.entities.user import User
 from datetime import timedelta
 
-from application.ports import UserRepository, PasswordHashing, TokenHandler
+from sqlalchemy.exc import SQLAlchemyError
 
+from application.ports import PasswordHashing, TokenHandler, UserRepository
+from domain.entities.user import User
 from shared.config import settings
 
 
@@ -23,13 +24,19 @@ class SignIn:
         password: str,
     ):
         try:
+            print("user found", email)
             user: User | None = self.user_repo.get_user_by_email(email=email)
 
+            print(user)
             if not user or not self.password_hashing.verify_password(
                 password, user.password
             ):
                 raise ValueError("Incorrect email or password")
-        except:
+
+            if user.is_archived:
+                raise ValueError("User is not active anymore")
+        except SQLAlchemyError as e:
+            print(e.__dict__)
             raise ValueError("Couldn't find an account with this email")
 
         access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)

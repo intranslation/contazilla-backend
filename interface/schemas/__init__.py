@@ -1,14 +1,27 @@
-from .user import UserCreate, UserResponse, Token, TokenData
-from .asset import AssetCreate, AssetUpdate, AssetResponse
-from .client import ClientCreate, ClientUpdate, ClientResponse
-from .company import CompanyCreate, CompanyUpdate, CompanyResponse
+from .address import AddressCreate, AddressResponse, AddressUpdate
+from .asset import AssetCreate, AssetResponse, AssetUpdate
 from .assign_client import AssignClient
+from .client import ClientCreate, ClientResponse, ClientUpdate
+from .company import CompanyCreate, CompanyResponse, CompanyUpdate
+from .user import (Token, TokenData, UserCreate, UserRegisterResponse,
+                   UserResponse)
 
 __all__ = [
-    "UserCreate", "UserResponse", "Token", "TokenData",
-    "AssetCreate", "AssetUpdate", "AssetResponse",
-    "ClientCreate", "ClientUpdate", "ClientResponse",
-    "CompanyCreate", "CompanyUpdate", "CompanyResponse",
+    "UserCreate",
+    "UserResponse",
+    "Token",
+    "TokenData",
+    "AssetCreate",
+    "AssetUpdate",
+    "AssetResponse",
+    "ClientCreate",
+    "ClientUpdate",
+    "ClientResponse",
+    "CompanyCreate",
+    "CompanyUpdate",
+    "CompanyResponse",
     "AssignClient",
+    "AddressCreate",
+    "AddressUpdate",
+    "AddressResponse",
 ]
-

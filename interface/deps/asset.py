@@ -1,32 +1,20 @@
-from application.use_cases.asset.retrieve_asset import RetrieveAsset
-from application.use_cases.asset.upload_asset import UploadAsset
-from infrastructure.services.bucket_handler import BucketHandler
-from fastapi import Depends
 from typing import Annotated, Any
 
+from fastapi import Depends
+
+from application.use_cases.asset import (AssignClientToAsset, DeleteAsset,
+                                         GetAsset, ListAssets, UpdateAsset)
+from application.use_cases.asset.retrieve_asset import RetrieveAsset
+from application.use_cases.asset.upload_asset import UploadAsset
 from infrastructure.repositories.asset import AssetRepository
 from infrastructure.repositories.client import ClientRepository
-from application.use_cases.asset import (
-    CreateAsset,
-    GetAsset,
-    ListAssets,
-    UpdateAsset,
-    DeleteAsset,
-    AssignClientToAsset,
-)
-
+from infrastructure.services.bucket_handler import BucketHandler
 from interface.deps.database import get_db
 from interface.deps.externals import get_bucket_handler
 
 
 def get_asset_repo(db: Annotated[Any, Depends(get_db)]) -> AssetRepository:
     return AssetRepository(db=db)
-
-
-def create_asset_use_case(
-    asset_repository: Annotated[AssetRepository, Depends(get_asset_repo)],
-):
-    return CreateAsset(asset_repo=asset_repository)
 
 
 def get_asset_use_case(

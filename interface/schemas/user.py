@@ -1,6 +1,11 @@
 from uuid import UUID
+
 from pydantic import BaseModel, EmailStr
-from datetime import datetime
+
+
+class CreateClientUserBody(BaseModel):
+    client_id: UUID
+    temp_password: str
 
 
 class UserCreate(BaseModel):
@@ -10,11 +15,21 @@ class UserCreate(BaseModel):
     password: str
 
 
+class UserRegisterResponse(BaseModel):
+    email: str
+    phone: str
+    name: str
+
+    class Config:
+        from_attributes = True
+
+
 class UserResponse(BaseModel):
     id: UUID
     email: str
     phone: str
     name: str
+    is_client: bool
 
     class Config:
         from_attributes = True

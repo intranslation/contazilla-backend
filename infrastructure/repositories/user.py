@@ -1,8 +1,7 @@
 from sqlalchemy.orm import Session
 
-from domain.entities.user import User
 from application.ports import UserRepository as UserRepositoryContract
-
+from domain.entities.user import User
 from infrastructure.models.user import User as UserModel
 
 

@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from application.ports import CompanyRepository, ClientRepository
+from application.ports import ClientRepository, CompanyRepository
 from domain.entities.company import Company
 
 
